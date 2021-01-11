@@ -22,18 +22,14 @@ interval b0(4.337, 4.338);
 
 /*
 TODO:
-- put NLKG definition and initialization into a seperate file
-- make ODE work at zero, because not smooth :(
 - make graphs comparing boundary ODE at infinity to finitary ODE
 - make ``instruction file'' for checking uniqueness (seperate procedure from verification)
-*/
-
-/*
-Options for initializing the algorithm:
-- Taylor series
-- Low order taylor expansion with bounds using Banach contraction
-- The above but with automatically computed error bounds
-- Approximation with linear equation & an priori bound
+- check *every* floating point operation to make sure it is rigorous
+- add detailed logging
+- don't use `delta' unless we are in that specific case, otherwise only use `y'
+- maybe try and section off all the ODE code to a seperate file (like we were doing before)
+    then just have three functions that take in initial conditions, 
+    AD, Solver, and prepare it
 */
 
 // HELPER FUNCTIONS //
@@ -55,8 +51,12 @@ struct NLKG_infty_init {
 const int ODE_POW = 3;
 const interval DIM(3);
 
-const double MAX_TIME_DET_CROSSINGS = 50; 
-const double STEP_TIME = 0.1;
+const double MAX_TIME_DET_CROSSINGS = 50; // maximum time to check up to for crossings
+
+const double STEP_TIME = 0.1; // step time in checking for number of crossings
+const double EVENTUALLY_FALLS_STEP = 1.0; // we use longer step size for proving falling
+
+// tolerance allowed in initializing the algorithm with taylor approx
 const double INIT_WIDTH = 1e-8;
 
 double min(double a, double b) {
@@ -64,7 +64,12 @@ double min(double a, double b) {
     else return b;
 }
 
-const double MACHINE_EP = 1e-9;
+// used right now to make buffer for floating point operations
+// ideally should not be used (rounding mode instead)
+// however if it is used, right way to do it is verify after the whole procedure 
+// has been run that all intervals intersect
+const double MACHINE_EP = 1e-9; 
+
 interval lower_half(interval I) {
     return interval(inf(I), midpoint(I)+MACHINE_EP);
 }
@@ -116,7 +121,6 @@ var_type fderiv(var_type y) {
     return ODE_POW * my_pow(y, ODE_POW-1) - 1;
 }
 
-
 /*
 defines NLKG ODE vector field
 - y'' + (2/t) y' + f(y) = 0, f(y) = y^{alpha} - y
@@ -134,6 +138,8 @@ void NLKG(int n, var_type *yp, const var_type *y, var_type t, void *param) {
 
 // check if we can guarantee delta > 0 up to time t
 // see sec. 3.1
+// TODO: verify that we can also guarantee all values move in the 
+// right direction up to this time
 double min_time_valid(interval b) {
     static interval FDERIV_ZERO = sqrt(interval(3)) / interval(3);
     double m1 = inf(sqrt(interval(6) * (b - FDERIV_ZERO) / my_pow(b, 3)));
@@ -143,15 +149,15 @@ double min_time_valid(interval b) {
 
 // check maximum errors at time t
 // see sec. 3.1
-void get_errors_for_time(interval b, interval t, vector<double> &errs) {
-    errs[0] = sup(my_pow(b, 5) * my_pow(t, 3) / interval(10));
-    errs[1] = sup(my_pow(b, 5) * my_pow(t, 4) / interval(40));
-    errs[2] = sup(my_pow(b, 6) * my_pow(t, 6) / interval(84) + 
+void get_errors_for_time(interval b, interval t, vector<interval> &errs) {
+    errs[0] = my_pow(b, 5) * my_pow(t, 3) / interval(10);
+    errs[1] = my_pow(b, 5) * my_pow(t, 4) / interval(40);
+    errs[2] = my_pow(b, 6) * my_pow(t, 6) / interval(84) + 
                      my_pow(b, 4) * my_pow(t, 5) / interval(20) + 
-                     my_pow(b, 4) * my_pow(t, 4) / interval(20));
-    errs[3] = sup(my_pow(b, 6) * my_pow(t, 5) / interval(14) + 
+                     my_pow(b, 4) * my_pow(t, 4) / interval(20);
+    errs[3] = my_pow(b, 6) * my_pow(t, 5) / interval(14) + 
                      my_pow(b, 4) * my_pow(t, 4) / interval(4) + 
-                     my_pow(b, 4) * my_pow(t, 3) / interval(4));
+                     my_pow(b, 4) * my_pow(t, 3) / interval(4);
 }
 
 // y''(0) = -f(y)/3
@@ -163,19 +169,23 @@ NLKG_init NLKG_init_approx(interval b, double tol) {
     NLKG_init vals;
     interval t0 = interval(min(min_time_valid(b), 0.1));
     double cur_err = 1e6;
-    vector<double> errs(4);
+    vector<interval> errs(4);
     while (cur_err > tol) {
         t0 = t0 / interval(2);
         get_errors_for_time(b, t0, errs);
         double max_err = 0;
+
+        // check if errors are small enough
+        // this is floating point arithmetic but that is ok, this doesn't need
+        // to be rigorous, just qualitatively need the errors "small"
+        // what's important is that the error tolerances computed at the end
+        // of this function aare accurate. 
         for(int i = 0; i < 4; i++) {
-            if (errs[i] > max_err) max_err = errs[i];
+            if (sup(errs[i]) > max_err) max_err = sup(errs[i]); 
         }
 
         cur_err = max_err;
     }
-
-    // cout << "ERR:" << cur_err << endl;
 
     vals.t0 = t0;
 
@@ -215,10 +225,9 @@ void NLKG_inf(int n, var_type *yp, const var_type *y, var_type t, void *param) {
 
 
 void get_errors_for_time_infty(interval t, vector<double> &errs) {
-    errs[0] = sup(my_pow(t, 4) / interval(40));
-    errs[1] = sup(my_pow(t, 3) / interval(10));
+    errs[0] = my_pow(t, 4) / interval(40);
+    errs[1] = my_pow(t, 3) / interval(10);
 }
-
 
 interval energy_infty(v_blas::iVector& y, interval s) {
     interval E = my_pow(y[1], 2) / 2 + my_pow(y[0], 4)/(interval(4)) - s * my_pow(y[0], 2) / 2;
@@ -232,13 +241,13 @@ NLKG_infty_init NLKG_infty_init_approx(interval s, double tol) {
     NLKG_infty_init vals;
     interval t0 = 1e-2;
     double cur_err = 1e6;
-    vector<double> errs(2);
+    vector<intervaal> errs(2);
     while (cur_err > tol) {
         t0 = t0 / interval(2);
         get_errors_for_time_infty(t0, errs);
         double max_err = 0;
         for(int i = 0; i < 2; i++) {
-            if (errs[i] > max_err) max_err = errs[i];
+            if (sup(errs[i]) > max_err) max_err = sup(errs[i]);
         }
 
         cur_err = max_err;
@@ -290,6 +299,7 @@ void sample_solve(interval b, interval tend) {
     cout << "Energy: " << E << endl;
 }
 
+// function to test NLKG initialization code
 void NLKG_init_test() {
     for (double b = 2.0; b < 100.0; b += 2.0) {
         NLKG_init vals = NLKG_init_approx(interval(b, b + 1e-2), INIT_WIDTH);
@@ -300,9 +310,14 @@ void NLKG_init_test() {
     }
 }
 
+/*
+TODO: determine step size dynamically, use energy to determine 
+how far we could need to look ahead. For instance, determine a lower bound
+on how long it could take to reach y = -1 if y is positive, flipped if y < 0
 
-// not meant to be rigorous, just for finding where the excited states actually 
-// are before we prove that's where they are
+not meant to be rigorous, just for finding where the excited states actually 
+are before we prove that's where they are
+*/
 int crossing_number_smallb(interval b, AD *ad, VNODE *Solver) {
     Solver->setFirstEntry();
     NLKG_init init_val = NLKG_init_approx(b, INIT_WIDTH);
@@ -337,6 +352,9 @@ int crossing_number_smallb(interval b, AD *ad, VNODE *Solver) {
 // will return best estimate of Nth excited state
 // performs a binary search
 // returns a value slightly smaller than the Nth excited state
+// not rigorous, only approximate
+// TODO: change this so it returns an interval containing the nth excited state
+// and is rigorous. 
 double find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver) {
     double upper_bound = determine_min_height_for_crossings(N+1);
     // cout << "num cross upper: " << 
@@ -364,7 +382,9 @@ double find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver) {
     return lower_bound;
 }
 
-
+// determined number of crossings using infinitary equation
+// TODO: change step size to be determined dynamically based on energy
+// TODO: graph and compare to finitary equations
 int crossing_number_infty(interval s, int max) {
     NLKG_infty_init init_val = NLKG_infty_init_approx(s, INIT_WIDTH);
     AD *ad = new FADBAD_AD(2, NLKG_inf, NLKG_inf, &s);
@@ -401,6 +421,8 @@ int crossing_number_infty(interval s, int max) {
 
 // determine the minimum value of y(0) = b after which we must have 
 // at least n crossings
+// TODO: change this function to work with finitary 
+// rather than infinitary equation
 double determine_min_height_for_crossings(int n) {
     interval s(1);
     while (crossing_number_infty(s, n) < n) {
@@ -433,7 +455,7 @@ bool prove_crosses_many_infty(int n, interval s) {
 // prove that starting in the interval height b, the solution eventually falls 
 // into one well
 // treats b as a unified starting interval
-const double EVENTUALLY_FALLS_STEP = 1.0;
+// TODO: determine step size dynamically
 bool prove_eventually_falls(interval b, AD *ad, VNODE *Solver) {
     Solver->setFirstEntry();
     NLKG_init init_val = NLKG_init_approx(b, INIT_WIDTH);
@@ -479,6 +501,8 @@ bool prove_eventually_falls_bisection(interval ran_fall, AD *ad, VNODE *Solver) 
 }
 
 // verify that within the interval b, there is at most one bound state
+// TODO: verify all floating point
+// TODO: decide ending time dynamically? maybe not...
 bool bound_state_good(interval b, double tend, AD *ad, VNODE *Solver) {
     
     NLKG_init init_val = NLKG_init_approx(b, INIT_WIDTH);
@@ -531,6 +555,12 @@ bool bound_state_good(interval b, double tend, AD *ad, VNODE *Solver) {
 }
 
 // verifies that the first n excited states, inclusive, are unique
+// TODO: make one function to prepare instructions for verifying uniqueness
+//      (finds times to go to and which intervals to check for what)
+// and another function to actually verify
+// the ``verify'' function should output "simple" intervals, i.e., 
+// as well as a summary of intervals that were bisected, also the input 
+// intervals that lead to a simple output. 
 bool first_n_excited_states_unique(int n, AD *ad, VNODE *Solver) {
     double b_checked_upto = 1.0 - MACHINE_EP;
     double bound_state_tol= 1e-6;
@@ -592,7 +622,7 @@ int main() {
     AD *ad = new FADBAD_AD(4,NLKG,NLKG);
     VNODE *Solver = new VNODE(ad);
     
-    first_n_excited_states_unique(2, ad, Solver);
+    first_n_excited_states_unique(4, ad, Solver);
     // prove_crosses_many_infty(1, interval(0.0, 0.1));
     // cout << crossing_number_infty(interval(0.05), 2) << endl;
     // sample_solve(interval(4.337, 4.338), interval(10.0));
