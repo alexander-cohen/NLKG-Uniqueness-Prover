@@ -1,0 +1,214 @@
+Making plan to prove first 10 excited states are unique.
+On excited state #0
+Adaptively determining bound state width
+Decided on bound state width for #0: 0.16687
+created interval to check: FALLS, [1.4142135623730944,4.2661132822500001]
+created interval to check: BOUND STATE GOOD, [4.2661132812499999,4.4329833984375001]
+On excited state #1
+Adaptively determining bound state width
+Decided on bound state width for #1: 0.0416708
+created interval to check: FALLS, [4.4329833974375008,14.0867128382192384]
+created interval to check: BOUND STATE GOOD, [14.0867128372192382,14.1283836364746094]
+On excited state #2
+Adaptively determining bound state width
+Decided on bound state width for #2: 0.166962
+created interval to check: FALLS, [14.1283836354746110,29.0379638681875001]
+created interval to check: BOUND STATE GOOD, [29.0379638671874999,29.2049255371093751]
+On excited state #3
+Adaptively determining bound state width
+Decided on bound state width for #3: 0.0416715
+created interval to check: FALLS, [29.2049255361093784,49.3392267237172817]
+created interval to check: BOUND STATE GOOD, 49.3[392267227172851,808982372283936]
+On excited state #4
+Adaptively determining bound state width
+Decided on bound state width for #4: 0.0416716
+created interval to check: FALLS, [49.3808982362283970,74.7488905201421546]
+created interval to check: BOUND STATE GOOD, 74.7[488905191421508,905621528625489]
+On excited state #5
+Adaptively determining bound state width
+Decided on bound state width for #5: 0.0416716
+created interval to check: FALLS, [74.7905621518625594,105.3405643711553382]
+created interval to check: BOUND STATE GOOD, 105.3[405643701553344,822360038757325]
+On excited state #6
+Adaptively determining bound state width
+Decided on bound state width for #6: 0.0416717
+created interval to check: FALLS, [105.3822360028757429,141.0920432219968462]
+created interval to check: BOUND STATE GOOD, [141.0920432209968566,141.1337149143218995]
+On excited state #7
+Adaptively determining bound state width
+Decided on bound state width for #7: 0.020834
+created interval to check: FALLS, [141.1337149133219099,182.0253670598135614]
+created interval to check: BOUND STATE GOOD, 182.0[253670588135719,462010204792023]
+On excited state #8
+Adaptively determining bound state width
+Decided on bound state width for #8: 0.000325521
+created interval to check: FALLS, [182.0462010194792128,228.1197199148704442]
+created interval to check: BOUND STATE GOOD, 228.119[7199138704547,10454347061851]
+On excited state #9
+Adaptively determining bound state width
+Decided on bound state width for #9: 0.020834
+created interval to check: FALLS, [228.1200454337061955,279.3606251637206697]
+created interval to check: BOUND STATE GOOD, 279.3[606251627206802,814591281116009]
+On excited state #10
+Adaptively determining bound state width
+Decided on bound state width for #10: 0.00520834
+created interval to check: FALLS, [279.3814591271116114,335.7833905064721876]
+created interval to check: BOUND STATE GOOD, 335.78[33905054721981,85988486814313]
+created interval to check: BUFFER FALLS, [335.7885988466814524,337.7885988476814419]
+created interval to check: INFTY CROSSES MANY, 0.00000[00000000000,87691545196]
+
+Executing plan to prove first 10 excited states are unique.
+Verified endpoint b = sqrt(2) is covered
+Verified intervals are contiguous
+
+Will verify drops: [1.4142135623730944,4.2661132822500001]
+In interval: [1.4142135623730944,4.2661132822500001], tried to prove: FALLS, did: SUCCEED
+
+Will verify #0 bound state good: [4.2661132812499999,4.4329833984375001]
+Crosses 0 times below #0 excited state, and 1 times above; at least one #0 excited state in range
+Succesfully proved at most one excited state in range: [4.2661132812499999,4.4329833984375001]
+Ending time = 1.921407793029704[4,7], ending y = 
+y0 : [0.1276494822671334,0.2767609848381579]
+y1 : [-0.3418774454047929,-0.2834873078193242]
+y2 : [-0.3737383426345132,-0.2698665992994738]
+y3 : [-0.1387383950959489,-0.0497500286593028]
+In interval: [4.2661132812499999,4.4329833984375001], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [4.4329833974375008,14.0867128382192384]
+In interval: [4.4329833974375008,14.0867128382192384], tried to prove: FALLS, did: SUCCEED
+
+Will verify #1 bound state good: [14.0867128372192382,14.1283836364746094]
+Crosses 1 times below #1 excited state, and 2 times above; at least one #1 excited state in range
+Succesfully proved at most one excited state in range: [14.0867128372192382,14.1283836364746094]
+Ending time = 7.00894138269785[30,40], ending y = 
+y0 : [-0.1029038920340683,0.1184434400671865]
+y1 : [-0.0864432038818974,0.1085801178184289]
+y2 : [2.4312126449047184,2.6060437013875442]
+y3 : [2.0373166086344767,2.2790966874295036]
+In interval: [14.0867128372192382,14.1283836364746094], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [14.1283836354746110,29.0379638681875001]
+In interval: [14.1283836354746110,29.0379638681875001], tried to prove: FALLS, did: SUCCEED
+
+Will verify #2 bound state good: [29.0379638671874999,29.2049255371093751]
+Crosses 2 times below #2 excited state, and 3 times above; at least one #2 excited state in range
+Succesfully proved at most one excited state in range: [29.0379638671874999,29.2049255371093751]
+Ending time = 4.54868099674569[75,94], ending y = 
+y0 : [0.1454730576431949,0.2453521498100406]
+y1 : -0.2[140034521658026,564534920670001]
+y2 : [-0.1401087770424604,-0.0683927751648348]
+y3 : [-0.0511717017797781,0.0031483198365057]
+In interval: [29.0379638671874999,29.2049255371093751], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [29.2049255361093784,49.3392267237172817]
+In interval: [29.2049255361093784,49.3392267237172817], tried to prove: FALLS, did: SUCCEED
+
+Will verify #3 bound state good: 49.3[392267227172851,808982372283936]
+Crosses 3 times below #3 excited state, and 4 times above; at least one #3 excited state in range
+Succesfully proved at most one excited state in range: 49.3[392267227172851,808982372283936]
+Ending time = 5.90799874133966[79,98], ending y = 
+y0 : -0.1[679849024028838,761960805771448]
+y1 : 0.19[86031918087081,113371330594406]
+y2 : 0.07[31127449131176,54409842216643]
+y3 : 0.01[72189877426266,91002218759110]
+In interval: 49.3[392267227172851,808982372283936], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [49.3808982362283970,74.7488905201421546]
+In interval: [49.3808982362283970,74.7488905201421546], tried to prove: FALLS, did: SUCCEED
+
+Will verify #4 bound state good: 74.7[488905191421508,905621528625489]
+Crosses 4 times below #4 excited state, and 5 times above; at least one #4 excited state in range
+Succesfully proved at most one excited state in range: 74.7[488905191421508,905621528625489]
+Ending time = 8.2024222766894[574,611], ending y = 
+y0 : 0.0[383867115771423,691591681501128]
+y1 : -0.0[476400078453075,720389567795447]
+y2 : -0.0[887680535829719,998349826382383]
+y3 : -0.0[651179784489698,748141872950000]
+In interval: 74.7[488905191421508,905621528625489], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [74.7905621518625594,105.3405643711553382]
+In interval: [74.7905621518625594,105.3405643711553382], tried to prove: FALLS, did: SUCCEED
+
+Will verify #5 bound state good: 105.3[405643701553344,822360038757325]
+Crosses 5 times below #5 excited state, and 6 times above; at least one #5 excited state in range
+Succesfully proved at most one excited state in range: 105.3[405643701553344,822360038757325]
+Ending time = 10.41468424791302[10,47], ending y = 
+y0 : [-0.0704078987248306,0.0332310328834057]
+y1 : [-0.0248716918701494,0.0680407341873486]
+y2 : 0.1[284183216951080,841948982400569]
+y3 : 0.1[107573978751417,634277908923483]
+In interval: 105.3[405643701553344,822360038757325], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [105.3822360028757429,141.0920432219968462]
+In interval: [105.3822360028757429,141.0920432219968462], tried to prove: FALLS, did: SUCCEED
+
+Will verify #6 bound state good: [141.0920432209968566,141.1337149143218995]
+Crosses 6 times below #6 excited state, and 7 times above; at least one #6 excited state in range
+Succesfully proved at most one excited state in range: [141.0920432209968566,141.1337149143218995]
+Ending time = 10.8508122126005[090,145], ending y = 
+y0 : 0.0[254504035931581,718526754166640]
+y1 : -0.0[339241950288090,725106049815493]
+y2 : -0.0[513761801834659,710078689930522]
+y3 : -0.0[376592658527080,551190017408803]
+In interval: [141.0920432209968566,141.1337149143218995], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [141.1337149133219099,182.0253670598135614]
+In interval: [141.1337149133219099,182.0253670598135614], tried to prove: FALLS, did: SUCCEED
+
+Will verify #7 bound state good: 182.0[253670588135719,462010204792023]
+Crosses 7 times below #7 excited state, and 8 times above; at least one #7 excited state in range
+Succesfully proved at most one excited state in range: 182.0[253670588135719,462010204792023]
+Ending time = 15.6612373080916[569,641], ending y = 
+y0 : [-0.0571207850705657,0.0610899828395916]
+y1 : [-0.0514632328391025,0.0596197880593021]
+y2 : [1.1699701680409300,1.2293052143273367]
+y3 : [1.0885019835697322,1.1571647707537825]
+In interval: 182.0[253670588135719,462010204792023], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [182.0462010194792128,228.1197199148704442]
+In interval: [182.0462010194792128,228.1197199148704442], tried to prove: FALLS, did: SUCCEED
+
+Will verify #8 bound state good: 228.119[7199138704547,10454347061851]
+Crosses 8 times below #8 excited state, and 9 times above; at least one #8 excited state in range
+Succesfully proved at most one excited state in range: 228.119[7199138704547,10454347061851]
+Ending time = 22.1463434864550[094,202], ending y = 
+y0 : [-0.0758491095811773,0.0537145965415581]
+y1 : [-0.0784543070504018,0.0574134260124261]
+y2 : [-140.7249992902207226,-138.4914728253851023]
+y3 : [-136.4795376909115135,-130.1372326532367083]
+In interval: 228.119[7199138704547,10454347061851], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [228.1200454337061955,279.3606251637206697]
+In interval: [228.1200454337061955,279.3606251637206697], tried to prove: FALLS, did: SUCCEED
+
+Will verify #9 bound state good: 279.3[606251627206802,814591281116009]
+Crosses 9 times below #9 excited state, and 10 times above; at least one #9 excited state in range
+Succesfully proved at most one excited state in range: 279.3[606251627206802,814591281116009]
+Ending time = 15.7595284944095[777,866], ending y = 
+y0 : -0.0[069427037811948,248477938545927]
+y1 : 0.0[086995821040868,251800390511982]
+y2 : 0.08[21625319794201,71541731604495]
+y3 : 0.07[45673271535065,92852185505471]
+In interval: 279.3[606251627206802,814591281116009], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [279.3814591271116114,335.7833905064721876]
+In interval: [279.3814591271116114,335.7833905064721876], tried to prove: FALLS, did: SUCCEED
+
+Will verify #10 bound state good: 335.78[33905054721981,85988486814313]
+Crosses 10 times below #10 excited state, and 11 times above; at least one #10 excited state in range
+Succesfully proved at most one excited state in range: 335.78[33905054721981,85988486814313]
+Ending time = 15.7198534518339[343,468], ending y = 
+y0 : 0.065[4714236049768,6845527123531]
+y1 : -0.069[6396209261488,7691247643819]
+y2 : -0.0248[108218954330,374399813022]
+y3 : -0.0145[543538672927,823433974125]
+In interval: 335.78[33905054721981,85988486814313], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [335.7885988466814524,337.7885988476814419]
+In interval: [335.7885988466814524,337.7885988476814419], tried to prove: FALLS, did: SUCCEED
+
+Will verify crosses many infinity: 0.00000[00000000000,87691545196]
+Interval too small, cannot verify crosses many times at infinity: 0.00000007[27742318,58444412]
+In interval: 0.00000[00000000000,87691545196], tried to prove: CROSSES MANY INFTY, did: FAIL
+
+Time to execute = 1625.17s
