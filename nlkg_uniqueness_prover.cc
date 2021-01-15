@@ -9,7 +9,7 @@ using namespace vnodelp;
 double determine_min_height_for_crossings(int n, AD *ad, VNODE *Solver);
 
 /*
-excited states from python code:
+bound states from python code:
     b0 =  4.3373877034
     b1 = 14.1035847287
     b2 = 29.1312123369
@@ -18,7 +18,7 @@ excited states from python code:
 */
 
 
-// numerical values of excited states:
+// numerical values of bound states:
 interval b0(4.337, 4.338);
 // b_1 =  
 
@@ -59,11 +59,6 @@ struct NLKG_init_l2 {
 const int ODE_POW = 3;
 const interval DIM(3);
 
-const double MAX_TIME_DET_CROSSINGS = 50; // maximum time to check up to for crossings
-
-const double STEP_TIME = 0.05; // step time in checking for number of crossings
-const double EVENTUALLY_FALLS_STEP = 1.0; // we use longer step size for proving falling
-
 // tolerance allowed in initializing the algorithm with taylor approx
 const double INIT_WIDTH = 1e-8;
 
@@ -72,8 +67,6 @@ const double MIN_TIME_START = 1e-2;
 
 const double MIN_WIDTH_EVENTUALLY_FALLS = 0.5; 
 const double MIN_WIDTH_ALGO_RUN = 2.0; 
-
-const double BOUND_STATE_TOL = 1e-5;
 
 double min(double a, double b) {
     if (a < b) return a;
@@ -437,7 +430,7 @@ interval time_max_one_cross_infty(iVector y, interval t, interval s) {
 }
 
 /*
-Not meant to be rigorous, just for finding where the excited states actually 
+Not meant to be rigorous, just for finding where the bound states actually 
 are before we prove that's where they are
 
 Should be rigorous, however.
@@ -477,23 +470,15 @@ int crossing_number_smallb(interval b, int maxc, AD *ad, VNODE *Solver) {
     return num_crossings;
 }
 
-// will return best estimate of Nth excited state
-// performs a binary search
-// returns an interval which contains the Nth excited state
-// Question: check if this is rigorous
-interval find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver) {
-    double upper_bound = determine_min_height_for_crossings(N+1, ad, Solver);
-    // cout << "num cross upper: " << 
-    //     crossing_number_smallb(upper_bound, ad, Solver) << ", " 
-    //     << N << endl;
-    double lower_bound = 1.0;
-    // cout << "UPPER BOUND: " << upper_bound << endl;
-    while (upper_bound - lower_bound > tol) {
+
+interval find_nth_excited_state_binsearch(int N, double tol, AD *ad, VNODE *Solver, 
+    double lower_bound, double upper_bound) {
+     while (upper_bound - lower_bound > tol) {
         double mid = (upper_bound + lower_bound) / 2;
         int nc_mid = crossing_number_smallb(mid, N+1, ad, Solver);
         // cout << "MID: " << mid << ", " << nc_mid << endl;
         if (nc_mid == -1) {
-            cout << "failed to find " << N << "th excited state" << endl;
+            cout << "failed to find " << N << "th bound state" << endl;
             return -1;
         }
 
@@ -506,6 +491,16 @@ interval find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver) {
     }
 
     return interval(lower_bound - tol, upper_bound + tol);
+}
+
+// will return best estimate of Nth bound state
+// performs a binary search
+// returns an interval which contains the Nth bound state
+// Question: check if this is rigorous
+interval find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver) {
+    double upper_bound = determine_min_height_for_crossings(N+1, ad, Solver);
+    double lower_bound = 1.0;
+    return find_nth_excited_state_binsearch(N, tol, ad, Solver, lower_bound, upper_bound);
 }
 
 
@@ -644,7 +639,7 @@ bool prove_eventually_falls_bisection(interval ran_fall, AD *ad, VNODE *Solver) 
 // verify that within the interval b, there is at most one bound state
 // TODO: verify all floating point calculations are rigorous
 // TODO: decide ending time dynamically? maybe not...
-bool bound_state_good(interval b, AD *ad, VNODE *Solver) {
+bool bound_state_good(interval b, AD *ad, VNODE *Solver, bool verbose) {
     
     NLKG_init_l4 init_val = NLKG_init_approx_with_delta(b, INIT_WIDTH);
 
@@ -662,7 +657,7 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver) {
         interval E = energy(y);
 
         if (!Solver->successful()) {
-            cout << "VNODE-LP did not succesfully integrate" << endl;
+            // cout << "VNODE-LP did not succesfully integrate" << endl;
             return false;
         }
 
@@ -693,11 +688,12 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver) {
         if (!interval_le(falls_over_v, interval(3) / interval(8))) {
             continue;
         }
-
-        cout << "Succesfully proved at most one excited state in range: " << b << endl;
-        cout << "Ending time = " << new_t << ", ending y = " << endl;
-        for(int i = 0; i < 4; i++) {
-            cout << "y" << i << " : " << y[i] << endl;
+        if (verbose) {
+            cout << "Succesfully proved at most one bound state in range: " << b << endl;
+            cout << "Ending time = " << new_t << ", ending y = " << endl;
+            for(int i = 0; i < 4; i++) {
+                cout << "y" << i << " : " << y[i] << endl;
+            }
         }
 
         return true;
@@ -705,7 +701,7 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver) {
 }
 
 
-// make plan for proving the first n excited states are unique
+// make plan for proving the first n bound states are unique
 enum pf_cases{FALLS,BOUND_GOOD,CROSSES_MANY_INFTY};
 struct interval_handler {
     int method;
@@ -728,6 +724,8 @@ string pf_text(int method) {
     }
 }
 
+// bool verify_boundstate_good(interval I, int n);
+
 // does not need to be rigorous, just makes a plan
 // verification of the plan must be rigorous
 vector<interval_handler> make_n_first_excited_plan(int n) {
@@ -738,13 +736,31 @@ vector<interval_handler> make_n_first_excited_plan(int n) {
     AD *ad = new FADBAD_AD(2,NLKG_no_delta, NLKG_no_delta);
     VNODE *Solver = new VNODE(ad);
 
+    AD *ad_wd = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
+    VNODE *Solver_wd = new VNODE(ad_wd);
+
     double b_checked_upto = inf(ENERGY_ZER0);
     double buffer_size = 2.0;
 
     for(int i = 0; i <= n; i++) {
-        cout << "On excited state #" << i << endl;
-        interval nth_excited_approx = find_nth_excited_state(i, 
-            BOUND_STATE_TOL, ad, Solver);
+        cout << "On bound state #" << i << endl;
+        cout << "Adaptively determining bound state width" << endl;
+        interval nth_excited_approx;
+        double bound_state_tol = 0.5;
+        double lower = 1.0;
+        double upper = determine_min_height_for_crossings(i+1, ad, Solver);
+        while (true) {
+            // cout << lower << ", " << upper << ", " << bound_state_tol << endl;
+            nth_excited_approx = find_nth_excited_state_binsearch(i, 
+                bound_state_tol, ad, Solver, lower, upper);
+            bool res = bound_state_good(nth_excited_approx, ad_wd, Solver_wd, false);
+            if (res) break; // small enough to verify bound state good
+            lower = inf(nth_excited_approx);
+            upper = sup(nth_excited_approx);
+            bound_state_tol /= 2;
+        }
+        cout << "Decided on bound state width for #" << i << ": " << width(nth_excited_approx) << endl;
+        
 
         interval drop_before = interval(b_checked_upto, 
             inf(nth_excited_approx) + EP);
@@ -758,7 +774,7 @@ vector<interval_handler> make_n_first_excited_plan(int n) {
         b_checked_upto = sup(nth_excited_approx - EP);
     }
 
-    // check that it falls in a ``buffer interval'' above the last excited state
+    // check that it falls in a ``buffer interval'' above the last bound state
     interval buffer_int = interval(b_checked_upto - EP, b_checked_upto + buffer_size);
     pf_plan.push_back(interval_handler(FALLS, buffer_int));
     cout << "created interval to check: BUFFER FALLS, " << buffer_int << endl;
@@ -783,27 +799,34 @@ bool verify_drop(interval I) {
     return prove_eventually_falls_bisection(I, ad, Solver);
 }
 
-// verify that in the interval I there is at most one excited state
+// verify that in the interval I there is at most one bound state
 bool verify_boundstate_good(interval I, int n) {
     cout << "Will verify #" << n << " bound state good: " << I << endl;
 
     AD *ad = new FADBAD_AD(2,NLKG_no_delta, NLKG_no_delta);
     VNODE *Solver = new VNODE(ad);
-    bool crosses_right_below = crossing_number_smallb(interval(inf(I)), n+2, ad, Solver) == n;
-    bool crosses_right_above = crossing_number_smallb(interval(sup(I)), n+2, ad, Solver) == n+1;
+    interval lower_I = interval(inf(I)+EP);
+    interval upper_I = interval(sup(I)-EP);
+    if(!subseteq(lower_I, I) || !subseteq(upper_I, I)) {
+        cout << "Failed to make intervals to check for existence of bound state" << endl;
+        return false;
+    }
+    bool crosses_right_below = crossing_number_smallb(lower_I, n+2, ad, Solver) == n;
+    bool crosses_right_above = crossing_number_smallb(upper_I, n+2, ad, Solver) == n+1;
+
     if (crosses_right_below && crosses_right_above) {
-        cout << "crosses " << n << " times below #" << n << " excited state, " << 
-                "and " << n+1 << " times above." << endl;
+        cout << "Crosses " << n << " times below #" << n << " bound state, " << 
+                "and " << n+1 << " times above; at least one #" << n << " bound state in range"<< endl;
     }
     else {
-        cout << "Could not verify #" << n << "excited state is in range: " << I << endl;
+        cout << "Could not verify #" << n << "bound state is in range: " << I << endl;
         return false;
     }
 
     ad = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
     Solver = new VNODE(ad);
 
-    bool at_most_one = bound_state_good(I, ad, Solver);
+    bool at_most_one = bound_state_good(I, ad, Solver, true);
 
  
     return at_most_one && crosses_right_below && crosses_right_above;
@@ -847,7 +870,7 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
     if (!does_intersect(plan[plan_len - 2].the_interval, outer_infty_interval)) {
         cout << "Intervals not contiguous: end to infinity" << endl;
         cout << plan[plan_len - 2].the_interval << endl;
-        cmut << outer_infty_interval << endl;
+        cout << outer_infty_interval << endl;
         return false;
     }
 
@@ -876,96 +899,19 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
         }
     }
 
-    cout << "\nSuccesfully proved first " << n << " excited states are unique." << endl;
+    cout << "\nSuccesfully proved first " << n << " bound states are unique." << endl;
 
     return true;
 }
 
-/*
-verifies that the first n excited states, inclusive, are unique
-TODO: make one function to prepare instructions for verifying uniqueness
-     (finds times to go to and which intervals to check for what)
-and another function to actually verify
-the ``verify'' function should output "simple" intervals, i.e., 
-as well as a summary of intervals that were bisected, also the input 
-intervals that lead to a simple output. 
-*/
-// bool first_n_excited_states_unique(int n, AD *ad, VNODE *Solver) {
-//     double b_checked_upto = 1.0 - EP;
-//     double bound_state_tol= 1e-6;
-//     double tend = 8;
-//     for(int i = 0; i <= n; i++) {
-//         interval nth_excited_approx = find_nth_excited_state(i, bound_state_tol, ad, Solver);
-
-//         interval fall_int = interval(b_checked_upto, inf(nth_excited_approx+EP));
-//         interval bound_int = nth_excited_approx;
-//         double next_b = nth_excited_approx + bound_state_tol - EP;
-
-//         bool falls_good = prove_eventually_falls_bisection(fall_int, ad, Solver);
-//         bool unique_near_bound = bound_state_good(bound_int, tend, ad, Solver);
-
-//         if (!falls_good) {
-//             cout << "could not prove falls in range: " << fall_int << endl;
-//             return false;
-//         }
-//         else {
-//             cout << "proved falls in range: " << fall_int << endl;
-//         }
-//         if (!unique_near_bound) {
-//             cout << "could not prove unique near bound state: " << bound_int << endl;
-//             return false;
-//         }
-//         else {
-//             cout << "proved unique near bound state: " << bound_int << endl;
-//         }
-
-//         interval fall_int_buff = interval(next_b, next_b + 2);
-//         bool falls_good_bugg = prove_eventually_falls_bisection(fall_int_buff, ad, Solver);
-//         if (!falls_good_bugg) {
-//             cout << "could not prove falls in buffer zone: " << fall_int_buff << endl;
-//             return false;
-//         }
-//         else {
-//             cout << "proved falls in buffer zone: " << fall_int_buff << endl;
-//         }
-//         b_checked_upto = sup(fall_int_buff) - 0.1;
-//     }
-
-//     double smax = sup(1/pow(interval(b_checked_upto), 2));
-//     interval s_check = interval(0, smax);
-//     cout << "s check: " << s_check << endl;
-//     bool crosses_many_infty = prove_crosses_many_infty(n+1, s_check);
-//     if (!crosses_many_infty) {
-//         cout << "could not prove crosses many times at infinity" << endl;
-//         return false;
-//     }
-//     else {
-//         cout << "proved crosses many times at infinity" << endl;
-//     }
-
-//     return true;
-// }
 
 int main() {
-    // interval s = interval(0,0.01);
-    // AD *ad = new FADBAD_AD(2, NLKG_inf, NLKG_inf, &s);
-    // VNODE *Solver = new VNODE(ad);
-
-    // cout << "computing crossing number" << endl;
-    // cout << crossing_number_infty(interval(0.1), 5, ad, Solver) << endl;
-
-    // prove_crosses_many_infty(1, s, ad, Solver);
-    // interval s = interval(0.0,1e-11);
-    // AD *ad = new FADBAD_AD(2, NLKG_inf, NLKG_inf, &s);
-    // VNODE *Solver = new VNODE(ad);
-    // cout << crossing_number_infty(s, 5, ad, Solver) << endl;
-
     clock_t t_start = clock();
 
-    int N = 3;
-    cout << "Making plan to prove first " << N << " excited states are unique." << endl;
+    int N = 10;
+    cout << "Making plan to prove first " << N << " bound states are unique." << endl;
     vector<interval_handler> plan = make_n_first_excited_plan(N);
-    cout << "\nExecuting plan to prove first " << N << " excited states are unique." << endl;
+    cout << "\nExecuting plan to prove first " << N << " bound states are unique." << endl;
     execute_first_n_excited_plan(N, plan);
 
     clock_t t_end = clock();
