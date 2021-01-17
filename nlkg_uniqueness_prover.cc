@@ -93,7 +93,10 @@ bool split_halfs(interval I, interval &lh, interval &uh);
 int get_sign(interval I); 
 bool interval_le(interval I, interval J); 
 interval min_mag(interval I); 
+
+template<typename var_type>
 var_type my_pow(var_type x, int n); 
+
 string pf_text(int method);
 
 // NLKG ODE functions, all must be rigorous
@@ -125,7 +128,7 @@ NLKG_init_l2 NLKG_init_approx_no_delta(interval b, double tol);
 
 // NLKG infty ODE functions, all must be rigorous
 template<typename var_type>
-void NLKG_inf(int n, var_type *yp, const var_type *y, var_type t, void *param)
+void NLKG_inf(int n, var_type *yp, const var_type *y, var_type t, void *param);
 void get_errors_for_time_infty(interval t, vector<interval> &errs);
 interval energy_infty(v_blas::iVector& y, interval beta);
 NLKG_init_l2 NLKG_infty_init_approx(interval beta, double tol);
@@ -135,7 +138,7 @@ interval infty_step(iVector y, interval t, interval beta);
 interval find_nth_excited_state_binsearch(int N, double tol, 
     AD *ad, VNODE *Solver, double lower_bound, double upper_bound);
 interval find_nth_excited_state(int N, double tol, AD *ad, VNODE *Solver);
-double determine_min_height_for_crossings(int n, AD *ad, VNODE *Solver)
+double determine_min_height_for_crossings(int n, AD *ad, VNODE *Solver);
 vector<interval_handler> make_n_first_excited_plan(int n);
 
 // Proving section functions, must be rigorous
@@ -756,8 +759,8 @@ trying to run `crossing_number_infty'.
 */
 bool prove_crosses_many_infty(int n, interval beta, AD *ad, VNODE *Solver) {
     if (width(beta) < EP * 4) { 
-        cout << "Interval too small, cannot verify crosses 
-                many times at infinity: " << beta << endl;
+        cout << "Interval too small, cannot verify crosses " << 
+                "many times at infinity: " << beta << endl;
         return false; // if interval is too small we can't bisect further
     }
     int nc = crossing_number_infty(beta, n, ad, Solver);
@@ -772,8 +775,8 @@ bool prove_crosses_many_infty(int n, interval beta, AD *ad, VNODE *Solver) {
         bool succesfull_split = split_halfs(beta, lh, uh);
 
         if (!succesfull_split) {
-            cout << "Could not verify that upper and 
-                    lower halves cover interval" << endl;
+            cout << "Could not verify that upper and " << 
+                    "lower halves cover interval" << endl;
             return false;
         }
 
@@ -848,8 +851,8 @@ bool prove_eventually_falls_bisection(interval ran_fall,
     bool succesfull_split = split_halfs(ran_fall, lh, uh);
 
     if (!succesfull_split) {
-        cout << "Could not verify that upper and 
-                lower halves cover interval" << endl;
+        cout << "Could not verify that upper and " << 
+                "lower halves cover interval" << endl;
         return false;
     }
 
@@ -972,16 +975,6 @@ bool bound_state_good(int n, interval b, AD *ad, VNODE *Solver, bool verbose) {
 
 // SEC: PLANNING SECTION // 
 
-// Structure for handling different intervals with different proof methods
-enum pf_cases{FALLS,BOUND_GOOD,CROSSES_MANY_INFTY};
-struct interval_handler {
-    int method;
-    int excited_state_num;
-    interval the_interval;
-    interval_handler(int m, interval I): method(m), the_interval(I) {};
-    interval_handler(int m, int en, interval I): 
-        method(m), excited_state_num(en), the_interval(I) {};
-};
 
 string pf_text(int method) {
     if (method == FALLS) {
@@ -1343,6 +1336,12 @@ int make_N3_output_for_graphs() {
 
 
 int main(int argc, char *argv[]) {
-    return run_uniqueness_prover(argc, argv);
+    AD *ad = new FADBAD_AD(4, NLKG_no_delta, NLKG_no_delta);
+    VNODE *Solver = new VNODE(ad);
+    for (int i = 0; i <= 20; i++) {
+        interval loc = find_nth_excited_state(i, 1e-2, ad, Solver);
+        cout << "(" << inf(loc) << "," << sup(loc) << ")" << endl;
+    }
+    // return run_uniqueness_prover(argc, argv);
     // return make_N3_output_for_graphs();
 }
