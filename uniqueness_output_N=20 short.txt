@@ -1,0 +1,374 @@
+Making plan to prove first 20 bound states are unique.
+On bound state #0
+Adaptively determining bound state width
+Decided on bound state width for #0: 0.16687
+created interval to check: FALLS, [1.4142135623730944,4.2661132813500001]
+created interval to check: BOUND STATE GOOD, [4.2661132812499999,4.4329833984375001]
+On bound state #1
+Adaptively determining bound state width
+Decided on bound state width for #1: 0.166931
+created interval to check: FALLS, [4.4329833983375008,14.0188598633812501]
+created interval to check: BOUND STATE GOOD, [14.0188598632812499,14.1857910156250001]
+On bound state #2
+Adaptively determining bound state width
+Decided on bound state width for #2: 0.166962
+created interval to check: FALLS, [14.1857910155250017,29.0379638672874983]
+created interval to check: BOUND STATE GOOD, [29.0379638671874999,29.2049255371093751]
+On bound state #3
+Adaptively determining bound state width
+Decided on bound state width for #3: 0.0416715
+created interval to check: FALLS, [29.2049255370093767,49.3392267228172870]
+created interval to check: BOUND STATE GOOD, 49.3[392267227172851,808982372283936]
+On bound state #4
+Adaptively determining bound state width
+Decided on bound state width for #4: 0.0416716
+created interval to check: FALLS, [49.3808982371283988,74.7488905192421527]
+created interval to check: BOUND STATE GOOD, 74.7[488905191421508,905621528625489]
+On bound state #5
+Adaptively determining bound state width
+Decided on bound state width for #5: 0.0416716
+created interval to check: FALLS, [74.7905621527625612,105.3405643702553363]
+created interval to check: BOUND STATE GOOD, 105.3[405643701553344,822360038757325]
+On bound state #6
+Adaptively determining bound state width
+Decided on bound state width for #6: 0.0416717
+created interval to check: FALLS, [105.3822360037757448,141.0920432210968443]
+created interval to check: BOUND STATE GOOD, [141.0920432209968566,141.1337149143218995]
+On bound state #7
+Adaptively determining bound state width
+Decided on bound state width for #7: 0.0416717
+created interval to check: FALLS, [141.1337149142219118,182.0175526739166685]
+created interval to check: BOUND STATE GOOD, 182.0[175526738166809,592243671417237]
+On bound state #8
+Adaptively determining bound state width
+Decided on bound state width for #8: 0.020834
+created interval to check: FALLS, [182.0592243670417360,228.1073090733097502]
+created interval to check: BOUND STATE GOOD, 228.1[073090732097625,281430348753930]
+On bound state #9
+Adaptively determining bound state width
+Decided on bound state width for #9: 0.020834
+created interval to check: FALLS, [228.1281430347754053,279.3606251628206679]
+created interval to check: BOUND STATE GOOD, 279.3[606251627206802,814591281116009]
+On bound state #10
+Adaptively determining bound state width
+Decided on bound state width for #10: 0.020834
+created interval to check: FALLS, [279.3814591280116133,335.7762287707136580]
+created interval to check: BOUND STATE GOOD, 335.7[762287706136703,970627360045910]
+On bound state #11
+Adaptively determining bound state width
+Decided on bound state width for #11: 0.0104167
+created interval to check: FALLS, [335.7970627359046034,397.3571814467267700]
+created interval to check: BOUND STATE GOOD, 397.3[571814466267824,675981923006475]
+On bound state #12
+Adaptively determining bound state width
+Decided on bound state width for #12: 0.020834
+created interval to check: FALLS, [397.3675981922006599,464.0919960589216658]
+created interval to check: BOUND STATE GOOD, [464.0919960588216781,464.1128300242125989]
+On bound state #13
+Adaptively determining bound state width
+Decided on bound state width for #13: 0.00520834
+created interval to check: FALLS, [464.1128300241126112,536.0037318982485886]
+created interval to check: BOUND STATE GOOD, 536.00[37318981485441,89402413868811]
+On bound state #14
+Adaptively determining bound state width
+Decided on bound state width for #14: 0.0104167
+created interval to check: FALLS, [536.0089402412869503,613.0655201015597414]
+created interval to check: BOUND STATE GOOD, 613.0[655201014596968,759368473663927]
+On bound state #15
+Adaptively determining bound state width
+Decided on bound state width for #15: 0.00520834
+created interval to check: FALLS, [613.0759368472664618,695.2959106629550661]
+created interval to check: BOUND STATE GOOD, 695.29[59106628550216,111190060933587]
+On bound state #16
+Adaptively determining bound state width
+Decided on bound state width for #16: 0.0104167
+created interval to check: FALLS, [695.3011190059934278,782.6811233247699420]
+created interval to check: BOUND STATE GOOD, 782.6[811233246698975,915400705765933]
+On bound state #17
+Adaptively determining bound state width
+Decided on bound state width for #17: 0.00520834
+created interval to check: FALLS, [782.6915400704766625,875.2356478956189676]
+created interval to check: BOUND STATE GOOD, 875.2[356478955189231,408562387572602]
+On bound state #18
+Adaptively determining bound state width
+Decided on bound state width for #18: 0.00260417
+created interval to check: FALLS, [875.2408562386573294,972.9482706573016913]
+created interval to check: BOUND STATE GOOD, 972.9[482706572016468,508748251064390]
+On bound state #19
+Adaptively determining bound state width
+Decided on bound state width for #19: 0.0104167
+created interval to check: FALLS, [9.7295087482500650821E+2,1.0758185227258200030E+3]
+created interval to check: BOUND STATE GOOD, 1.0758[185227257199585,289394717430696]E+3
+On bound state #20
+Adaptively determining bound state width
+Decided on bound state width for #20: 0.0104167
+created interval to check: FALLS, [1.0758289394716432525,1.1838517220361227374]E+3
+created interval to check: BOUND STATE GOOD, 1.1838[517220360226929,621387820458040]E+3
+created interval to check: BUFFER FALLS, 1.18[38621387818459425,58621387819459870]E+3
+created interval to check: INFTY CROSSES MANY, 0.000[0000000000000,8432688423280]
+
+Executing plan to prove first 20 bound states are unique.
+Verified endpoint b = sqrt(2) is covered
+Verified intervals are contiguous
+
+Will verify drops: [1.4142135623730944,4.2661132813500001]
+In interval: [1.4142135623730944,4.2661132813500001], tried to prove: FALLS, did: SUCCEED
+
+Will verify #0 bound state good: [4.2661132812499999,4.4329833984375001]
+Succesfully proved at most one bound state in range: [4.2661132812499999,4.4329833984375001]
+Ending time = 1.912256076488290[5,8], ending y = 
+0.131058, 0.279119
+-0.346199, -0.288755
+-0.3724, -0.269867
+-0.136382, -0.0487944
+In interval: [4.2661132812499999,4.4329833984375001], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [4.4329833983375008,14.0188598633812501]
+In interval: [4.4329833983375008,14.0188598633812501], tried to prove: FALLS, did: SUCCEED
+
+Will verify #1 bound state good: [14.0188598632812499,14.1857910156250001]
+Succesfully proved at most one bound state in range: [14.0188598632812499,14.1857910156250001]
+Ending time = 3.32803445343114[39,48], ending y = 
+-0.24383, -0.124181
+0.211176, 0.263985
+0.138835, 0.198434
+0.0244982, 0.0826644
+In interval: [14.0188598632812499,14.1857910156250001], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [14.1857910155250017,29.0379638672874983]
+In interval: [14.1857910155250017,29.0379638672874983], tried to prove: FALLS, did: SUCCEED
+
+Will verify #2 bound state good: [29.0379638671874999,29.2049255371093751]
+Succesfully proved at most one bound state in range: [29.0379638671874999,29.2049255371093751]
+Ending time = 4.67835523118645[37,56], ending y = 
+0.114306, 0.220161
+-0.226639, -0.173993
+-0.141785, -0.0703495
+-0.0662784, -0.00318701
+In interval: [29.0379638671874999,29.2049255371093751], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [29.2049255370093767,49.3392267228172870]
+In interval: [29.2049255370093767,49.3392267228172870], tried to prove: FALLS, did: SUCCEED
+
+Will verify #3 bound state good: 49.3[392267227172851,808982372283936]
+Succesfully proved at most one bound state in range: 49.3[392267227172851,808982372283936]
+Ending time = 6.3638724938726[793,812], ending y = 
+-0.106684, -0.0963117
+0.114034, 0.120179
+0.0874367, 0.0909782
+0.0465939, 0.0495701
+In interval: 49.3[392267227172851,808982372283936], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [49.3808982371283988,74.7488905192421527]
+In interval: [49.3808982371283988,74.7488905192421527], tried to prove: FALLS, did: SUCCEED
+
+Will verify #4 bound state good: 74.7[488905191421508,905621528625489]
+Succesfully proved at most one bound state in range: 74.7[488905191421508,905621528625489]
+Ending time = 7.79070231799208[46,65], ending y = 
+0.0752159, 0.0952117
+-0.102547, -0.0888326
+-0.0747211, -0.0681004
+-0.0452176, -0.0396319
+In interval: 74.7[488905191421508,905621528625489], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [74.7905621527625612,105.3405643702553363]
+In interval: [74.7905621527625612,105.3405643702553363], tried to prove: FALLS, did: SUCCEED
+
+Will verify #5 bound state good: 105.3[405643701553344,822360038757325]
+Succesfully proved at most one bound state in range: 105.3[405643701553344,822360038757325]
+Ending time = 8.91619512367959[46,100], ending y = 
+-0.112226, -0.0879161
+0.103461, 0.119288
+0.0467726, 0.0546401
+0.021481, 0.0279327
+In interval: 105.3[405643701553344,822360038757325], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [105.3822360037757448,141.0920432210968443]
+In interval: [105.3822360037757448,141.0920432210968443], tried to prove: FALLS, did: SUCCEED
+
+Will verify #6 bound state good: [141.0920432209968566,141.1337149143218995]
+Succesfully proved at most one bound state in range: [141.0920432209968566,141.1337149143218995]
+Ending time = 10.28441113510175[24,78], ending y = 
+0.0771626, 0.103743
+-0.10824, -0.0900331
+-0.0472967, -0.0373375
+-0.0257431, -0.0176212
+In interval: [141.0920432209968566,141.1337149143218995], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [141.1337149142219118,182.0175526739166685]
+In interval: [141.1337149142219118,182.0175526739166685], tried to prove: FALLS, did: SUCCEED
+
+Will verify #7 bound state good: 182.0[175526738166809,592243671417237]
+Succesfully proved at most one bound state in range: 182.0[175526738166809,592243671417237]
+Ending time = 11.7773503333972[566,621], ending y = 
+-0.0938714, -0.0492129
+0.0604997, 0.0952394
+0.0271433, 0.0507694
+0.0136955, 0.0335887
+In interval: 182.0[175526738166809,592243671417237], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [182.0592243670417360,228.1073090733097502]
+In interval: [182.0592243670417360,228.1073090733097502], tried to prove: FALLS, did: SUCCEED
+
+Will verify #8 bound state good: 228.1[073090732097625,281430348753930]
+Succesfully proved at most one bound state in range: 228.1[073090732097625,281430348753930]
+Ending time = 12.9625146998987[368,422], ending y = 
+0.0780955, 0.0815321
+-0.0868236, -0.0846656
+-0.0311176, -0.0302762
+-0.0165062, -0.0157923
+In interval: 228.1[073090732097625,281430348753930], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [228.1281430347754053,279.3606251628206679]
+In interval: [228.1281430347754053,279.3606251628206679], tried to prove: FALLS, did: SUCCEED
+
+Will verify #9 bound state good: 279.3[606251627206802,814591281116009]
+Succesfully proved at most one bound state in range: 279.3[606251627206802,814591281116009]
+Ending time = 14.37021898581958[19,91], ending y = 
+-0.0724162, -0.0675396
+0.0730829, 0.0764666
+0.0272831, 0.0284472
+0.0154943, 0.0165043
+In interval: 279.3[606251627206802,814591281116009], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [279.3814591280116133,335.7762287707136580]
+In interval: [279.3814591280116133,335.7762287707136580], tried to prove: FALLS, did: SUCCEED
+
+Will verify #10 bound state good: 335.7[762287706136703,970627360045910]
+Succesfully proved at most one bound state in range: 335.7[762287706136703,970627360045910]
+Ending time = 15.6372696516377[764,854], ending y = 
+0.0690496, 0.0741094
+-0.077837, -0.0743911
+-0.0243769, -0.02302
+-0.0133105, -0.0121686
+In interval: 335.7[762287706136703,970627360045910], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [335.7970627359046034,397.3571814467267700]
+In interval: [335.7970627359046034,397.3571814467267700], tried to prove: FALLS, did: SUCCEED
+
+Will verify #11 bound state good: 397.3[571814466267824,675981923006475]
+Succesfully proved at most one bound state in range: 397.3[571814466267824,675981923006475]
+Ending time = 16.7563424694085[760,903], ending y = 
+-0.0862056, -0.0855586
+0.0906817, 0.0909835
+0.0190696, 0.0191594
+0.00739539, 0.00747884
+In interval: 397.3[571814466267824,675981923006475], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [397.3675981922006599,464.0919960589216658]
+In interval: [397.3675981922006599,464.0919960589216658], tried to prove: FALLS, did: SUCCEED
+
+Will verify #12 bound state good: [464.0919960588216781,464.1128300242125989]
+Succesfully proved at most one bound state in range: [464.0919960588216781,464.1128300242125989]
+Ending time = 17.7537792559613[265,408], ending y = 
+0.113094, 0.121172
+-0.125222, -0.121413
+-0.0173051, -0.0143115
+-0.00248328, -0.000616994
+In interval: [464.0919960588216781,464.1128300242125989], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [464.1128300241126112,536.0037318982485886]
+In interval: [464.1128300241126112,536.0037318982485886], tried to prove: FALLS, did: SUCCEED
+
+Will verify #13 bound state good: 536.00[37318981485441,89402413868811]
+Succesfully proved at most one bound state in range: 536.00[37318981485441,89402413868811]
+Ending time = 19.1150223976769[382,560], ending y = 
+-0.109655, -0.108371
+0.11418, 0.114615
+0.0142481, 0.0144748
+0.00173557, 0.00188101
+In interval: 536.00[37318981485441,89402413868811], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [536.0089402412869503,613.0655201015597414]
+In interval: [536.0089402412869503,613.0655201015597414], tried to prove: FALLS, did: SUCCEED
+
+Will verify #14 bound state good: 613.0[655201014596968,759368473663927]
+Succesfully proved at most one bound state in range: 613.0[655201014596968,759368473663927]
+Ending time = 21.2687495706990[752,895], ending y = 
+0.0436589, 0.0451162
+-0.0469973, -0.0458618
+-0.0191393, -0.0188739
+-0.0135576, -0.0133168
+In interval: 613.0[655201014596968,759368473663927], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [613.0759368472664618,695.2959106629550661]
+In interval: [613.0759368472664618,695.2959106629550661], tried to prove: FALLS, did: SUCCEED
+
+Will verify #15 bound state good: 695.29[59106628550216,111190060933587]
+Succesfully proved at most one bound state in range: 695.29[59106628550216,111190060933587]
+Ending time = 22.3645195457467[274,452], ending y = 
+-0.0582173, -0.0514969
+0.0546035, 0.0599407
+0.0142779, 0.0156416
+0.00819709, 0.00944156
+In interval: 695.29[59106628550216,111190060933587], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [695.3011190059934278,782.6811233247699420]
+In interval: [695.3011190059934278,782.6811233247699420], tried to prove: FALLS, did: SUCCEED
+
+Will verify #16 bound state good: 782.6[811233246698975,915400705765933]
+Succesfully proved at most one bound state in range: 782.6[811233246698975,915400705765933]
+Ending time = 23.477166410922[2903,3118], ending y = 
+0.0656731, 0.0676686
+-0.0700674, -0.0687772
+-0.0124981, -0.0121206
+-0.00562158, -0.00531776
+In interval: 782.6[811233246698975,915400705765933], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [782.6915400704766625,875.2356478956189676]
+In interval: [782.6915400704766625,875.2356478956189676], tried to prove: FALLS, did: SUCCEED
+
+Will verify #17 bound state good: 875.2[356478955189231,408562387572602]
+Succesfully proved at most one bound state in range: 875.2[356478955189231,408562387572602]
+Ending time = 24.5980387205089[385,599], ending y = 
+-0.0871216, -0.0735508
+0.078631, 0.0883358
+0.00874337, 0.0123846
+0.00136289, 0.00440834
+In interval: 875.2[356478955189231,408562387572602], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [875.2408562386573294,972.9482706573016913]
+In interval: [875.2408562386573294,972.9482706573016913], tried to prove: FALLS, did: SUCCEED
+
+Will verify #18 bound state good: 972.9[482706572016468,508748251064390]
+Succesfully proved at most one bound state in range: 972.9[482706572016468,508748251064390]
+Ending time = 25.7305772631371[638,888], ending y = 
+0.0950478, 0.0963674
+-0.0995148, -0.0989074
+-0.00953654, -0.00939888
+-0.000913838, -0.00079736
+In interval: 972.9[482706572016468,508748251064390], tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [9.7295087482500650821E+2,1.0758185227258200030E+3]
+In interval: [9.7295087482500650821E+2,1.0758185227258200030E+3], tried to prove: FALLS, did: SUCCEED
+
+Will verify #19 bound state good: 1.0758[185227257199585,289394717430696]E+3
+Succesfully proved at most one bound state in range: 1.0758[185227257199585,289394717430696]E+3
+Ending time = 27.8677616070057[254,468], ending y = 
+-0.0440106, -0.0365992
+0.0386332, 0.0448631
+0.0117269, 0.0131796
+0.0079119, 0.00930423
+In interval: 1.0758[185227257199585,289394717430696]E+3, tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: [1.0758289394716432525,1.1838517220361227374]E+3
+In interval: [1.0758289394716432525,1.1838517220361227374]E+3, tried to prove: FALLS, did: SUCCEED
+
+Will verify #20 bound state good: 1.1838[517220360226929,621387820458040]E+3
+Succesfully proved at most one bound state in range: 1.1838[517220360226929,621387820458040]E+3
+Ending time = 29.0222456263496[439,725], ending y = 
+0.0466074, 0.0475603
+-0.0490035, -0.0483221
+-0.0104529, -0.0103598
+-0.00628698, -0.00619015
+In interval: 1.1838[517220360226929,621387820458040]E+3, tried to prove: BOUND STATE GOOD, did: SUCCEED
+
+Will verify drops: 1.18[38621387818459425,58621387819459870]E+3
+In interval: 1.18[38621387818459425,58621387819459870]E+3, tried to prove: FALLS, did: SUCCEED
+
+Will verify crosses many infinity: 0.000[0000000000000,8432688423280]
+In interval: 0.000[0000000000000,8432688423280], tried to prove: CROSSES MANY INFTY, did: SUCCEED
+
+
+Succesfully proved first 20 bound states are unique.
+Time to execute = 13752.1s
