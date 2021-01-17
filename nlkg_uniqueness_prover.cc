@@ -1,4 +1,5 @@
 #include <ostream>
+#include <sstream>
 #include <fstream>
 #include <math.h>
 #include <time.h>
@@ -941,26 +942,66 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
 }
 
 
-int main() {
-    // double lower = 228.11972;
-    // double upper = 228.11988;
-    // interval I = interval(lower, upper);
+void make_sol_data(interval b, double T, double step) {
+    AD *ad = new FADBAD_AD(2, NLKG_no_delta, NLKG_no_delta);
+    VNODE *Solver = new VNODE(ad);
 
-    // AD *ad = new FADBAD_AD(2, NLKG_no_delta, NLKG_no_delta);
-    // VNODE *Solver = new VNODE(ad);
+    Solver->setFirstEntry();
+    NLKG_init_l2 init_val = NLKG_init_approx_no_delta(b, INIT_WIDTH);
 
-    // cout << crossing_number_smallb(interval(lower), 15, ad, Solver) << endl;
-    // cout << crossing_number_smallb(interval(upper), 15, ad, Solver) << endl;
-    
-    // ad = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
-    // Solver = new VNODE(ad);
+    iVector y = init_val.y;
+    interval t = init_val.t0;
 
-    // bool res = bound_state_good(I, ad, Solver, true);
-    // cout << "BOUND STATE GOOD: " << res << endl;
+    int iter = 0;
+
+    cout << "Solution data: " <<
+            "b = [" << inf(b) << "," << sup(b) << "], " << 
+            "T = " << T << endl;
+    cout << "iter,time,inf(y[0]),sup(y[0]),inf(y[1]),sup(y[1])" << endl;
+
+    while (sup(t) < T) {
+        // log data
+        cout << setprecision(5) << iter << "," << 
+                midpoint(t) << "," << 
+                inf(y[0]) << "," << sup(y[0]) << "," << 
+                inf(y[1]) << "," << sup(y[1]) << endl;
+
+
+        interval new_t = t + step;
+        Solver->integrate(t, y, new_t);
+
+        if(!Solver->successful()) {
+            cout << "Failed to integrate, stopping.";
+            return;
+        }
+
+        iter++;
+    }
+}
+
+
+int run_uniqueness_prover(int argc, char *argv[]) {
+    int N = 0;
+
+    if (argc < 2) {
+        cerr << "Usage: \n" << argv[0] << " N" << endl <<
+                "N is number of bound states to prove uniqueness for" << endl;
+        return 0;
+    }
+    else {
+        istringstream ss(argv[1]);
+        if (!(ss >> N)) {
+            cerr << "Invalid number: " << argv[1] << endl;
+        }
+        else if (!ss.eof()) {
+            cerr << "Trailing characters after number: " << argv[1] << endl;
+        }
+        else if (N < 0) {
+            cerr << "Number of bound states must be nonnegative" << endl;
+        }
+    }
 
     clock_t t_start = clock();
-
-    int N = 10;
     cout << "Making plan to prove first " << N << " bound states are unique." << endl;
     vector<interval_handler> plan = make_n_first_excited_plan(N);
     cout << "\nExecuting plan to prove first " << N << " bound states are unique." << endl;
@@ -969,4 +1010,27 @@ int main() {
     clock_t t_end = clock();
     cout << "Time to execute = " << (double)(t_end - t_start) / CLOCKS_PER_SEC << "s" << endl;
     return 0;
+}
+
+int make_N3_output_for_graphs() {
+    double step = 0.001;
+    make_sol_data(interval(4.26611, 4.43298), 1.92140, step); // first bound state
+    cout << endl;
+
+    make_sol_data(interval(14.09452, 14.11536), 2.85488, step); // second bound state
+    cout << endl;
+
+    make_sol_data(interval(29.09019, 29.17356), 4.97016, step); // third bound state
+    cout << endl;
+
+    make_sol_data(interval(49.33922, 49.38089), 5.90799, step); // fourth bound state
+    cout << endl;
+
+    return 0;
+}
+
+
+int main(int argc, char *argv[]) {
+    // return run_uniqueness_prover(argc, argv);
+    return make_N3_output_for_graphs();
 }
