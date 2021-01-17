@@ -2,6 +2,7 @@
 #include <fstream>
 #include <math.h>
 #include <time.h>
+#include <iomanip>
 #include "vnode.h"
 
 using namespace vnodelp;
@@ -9,7 +10,7 @@ using namespace vnodelp;
 double determine_min_height_for_crossings(int n, AD *ad, VNODE *Solver);
 
 /*
-bound states from python code:
+Approximate bound states:
     b0 =  4.3373877034
     b1 = 14.1035847287
     b2 = 29.1312123369
@@ -18,23 +19,12 @@ bound states from python code:
 */
 
 
-// numerical values of bound states:
-interval b0(4.337, 4.338);
-// b_1 =  
 
 /*
 TODO:
 - make graphs comparing boundary ODE at infinity to finitary ODE
-- make ``instruction file'' for checking uniqueness (seperate procedure from verification)
-- check *every* floating point operation to make sure it is rigorous
-- add detailed logging
-- don't use `delta' unless we are in that specific case, otherwise only use `y'
-- maybe try and section off all the ODE code to a seperate file (like we were doing before)
-    then just have three functions that take in initial conditions, 
-    AD, Solver, and prepare it
-- figure out how to read / write intervals from file
-
 - make a list of which functions are used in rigorous vs non rigorous parts.
+- change equation at infinity to use beta from paper rather than `s' from code
 */
 
 // HELPER FUNCTIONS //
@@ -68,6 +58,11 @@ const double MIN_TIME_START = 1e-2;
 const double MIN_WIDTH_EVENTUALLY_FALLS = 0.5; 
 const double MIN_WIDTH_ALGO_RUN = 2.0; 
 
+// not determined dynamically because we just need to lower bound 
+// the number of zero crossings, and this is empirically enough
+const double INFTY_STEP = 1.0; 
+const double BOUND_STATE_STEP = 1.0; 
+
 double min(double a, double b) {
     if (a < b) return a;
     else return b;
@@ -77,21 +72,23 @@ double min(double a, double b) {
 // ideally should not be used (rounding mode instead)
 // however if it is used, right way to do it is verify after the whole procedure 
 // has been run that all intervals intersect
-const double EP = 1e-9; 
+const double EP = 1e-10; 
 
 
 // HELPER FUNCTIONS
-interval lower_half(interval I) {
-    return interval(inf(I), midpoint(I)+EP);
-}
-
-interval upper_half(interval I) {
-    return interval(midpoint(I)-EP, sup(I));
-}
-
 bool does_intersect(interval I, interval J) {
     interval _(0);
     return intersect(_, I, J);
+}
+
+
+bool split_halfs(interval I, interval &lh, interval &uh) {
+    double mp = midpoint(I);
+    lh = interval(inf(I), mp); 
+    uh = interval(mp, sup(I));
+    if (!does_intersect(lh, uh)) return false; // not contiguous
+
+    return true;
 }
 
 enum signs{POS, NEG, UNC};
@@ -140,7 +137,9 @@ var_type my_pow(var_type x, int n) {
 
 // compute energy of a state vector
 interval energy(v_blas::iVector& y) {
-    interval E = my_pow(y[1], 2) / 2 + my_pow(y[0], ODE_POW+1)/(ODE_POW+1) - my_pow(y[0], 2) / 2;
+    interval E = my_pow(y[1], 2) / interval(2) + 
+                my_pow(y[0], ODE_POW+1)/interval(ODE_POW+1) - 
+                my_pow(y[0], 2) / interval(2);
     return E;
 }
 
@@ -151,7 +150,7 @@ var_type f(var_type y) {
 
 template<typename var_type>
 var_type fderiv(var_type y) {
-    return ODE_POW * my_pow(y, ODE_POW-1) - 1;
+    return ODE_POW * my_pow(y, ODE_POW-1) - interval(1);
 }
 
 /*
@@ -218,7 +217,6 @@ void set_initial_vals_with_delta(interval b, interval t0, iVector &y) {
     y[3] = -t0 * fderiv(b) / interval(3); // delta'(t0)
 }
 
-
 // y''(0) = -f(y)/3
 // y(t) ~ b - f(y) t^2/6
 // y'(t) ~ -f(y)t/3
@@ -238,7 +236,7 @@ NLKG_init_l4 NLKG_init_approx_with_delta(interval b, double tol) {
         // this is floating point arithmetic but that is ok, this doesn't need
         // to be rigorous, just qualitatively need the errors "small"
         // what's important is that the error tolerances computed at the end
-        // of this function aare accurate. 
+        // of this function are accurate. 
         for(int i = 0; i < 4; i++) {
             if (sup(errs[i]) > max_err) max_err = sup(errs[i]); 
         }
@@ -275,7 +273,7 @@ NLKG_init_l2 NLKG_init_approx_no_delta(interval b, double tol) {
         // this is floating point arithmetic but that is ok, this doesn't need
         // to be rigorous, just qualitatively need the errors "small"
         // what's important is that the error tolerances computed at the end
-        // of this function aare accurate. 
+        // of this function are accurate. 
         for(int i = 0; i < 2; i++) {
             if (sup(errs[i]) > max_err) max_err = sup(errs[i]); 
         }
@@ -301,17 +299,19 @@ NLKG_init_l2 NLKG_init_approx_no_delta(interval b, double tol) {
 // NLKG infty ODE
 
 // defines ODE that determines behavior of NLKG at inifnity
-// param = s, parameter defining closeness to infinity 
+// param = beta, parameter defining closeness to infinity 
 //     (s = 0 is behavior at infinity)
 // set y(t) = alpha * v(alpha^k t), where k = (ODE_POW - 1)/2
 // then v'' + (2/t)v' + v^{ODE_POW} - alpha^{1-ODE_POW} v = 0
 // set v(0) = 1, so alpha = b
-// s = b^{1 - ODE_POW}
+// beta = 1/b
 template<typename var_type>
 void NLKG_inf(int n, var_type *yp, const var_type *y, var_type t, void *param) {
-    interval s = *((interval *)param);
+    interval beta = *((interval *)param);
     yp[0] = y[1];
-    yp[1] = - ((DIM-1)/t) * y[1] - my_pow(y[0], ODE_POW) + s * y[0];
+    yp[1] = - ((DIM-1)/t) * y[1] - 
+            my_pow(y[0], ODE_POW) + 
+            my_pow(beta, ODE_POW-1) * y[0];
 }
 
 
@@ -320,15 +320,17 @@ void get_errors_for_time_infty(interval t, vector<interval> &errs) {
     errs[1] = my_pow(t, 3) / interval(10);
 }
 
-interval energy_infty(v_blas::iVector& y, interval s) {
-    interval E = my_pow(y[1], 2) / 2 + my_pow(y[0], 4)/(interval(4)) - s * my_pow(y[0], 2) / 2;
+interval energy_infty(v_blas::iVector& y, interval beta) {
+    interval E = my_pow(y[1], 2) / interval(2) + 
+                    my_pow(y[0], 4)/(interval(4)) - 
+                    my_pow(beta, ODE_POW-1) * my_pow(y[0], 2) / interval(2);
     return E;
 }
 
-// w''(0) = -(1-s) / 3
-// w(t) ~ 1 - (1-s)t^2/6
-// w'(t) ~ -(1-s)t/3
-NLKG_init_l2 NLKG_infty_init_approx(interval s, double tol) {
+// w''(0) = -(1-beta^2) / 3
+// w(t) ~ 1 - (1-beta^2)t^2/6
+// w'(t) ~ -(1-beta^2)t/3
+NLKG_init_l2 NLKG_infty_init_approx(interval beta, double tol) {
     NLKG_init_l2 vals;
     interval t0 = TIME_START_INFTY_EQ;
     double cur_err = 1e6;
@@ -347,11 +349,11 @@ NLKG_init_l2 NLKG_infty_init_approx(interval s, double tol) {
     vals.t0 = t0;
 
     // initial calculations based on taylor approx
-    vals.y[0] = interval(1) - (interval(1)-s) * my_pow(t0, 2) / interval(6); // v(t0)
-    vals.y[1] = -t0 * (interval(1) - s) / interval(3); // y'(t0)
+    vals.y[0] = interval(1) - (interval(1)-my_pow(beta, 2)) * 
+                                my_pow(t0, 2) / interval(6); // v(t0)
+    vals.y[1] = -t0 * (interval(1) - my_pow(beta, 2)) / interval(3); // y'(t0)
 
     // add in error bars manually
-    // TODO: verify in this range, we have estimates in the stated directions
     vals.y[0] = interval(inf(vals.y[0]), sup(vals.y[0] + errs[0]));
     vals.y[1] = interval(inf(vals.y[1]), sup(vals.y[1] + errs[1]));
 
@@ -415,18 +417,19 @@ interval time_max_one_cross(iVector y, interval t) {
     return interval(inf(step));
 }
 
-interval time_max_one_cross_infty(iVector y, interval t, interval s) {
-    // if we travel distance to zero + 1 we are at most in the left well so 
-    // won't cross zero more than once. 
 
-    // energy minimized at y^3 - sy = 0, or y = sqrt(s);
-    interval MIN_ENERGY = my_pow(s, 2) / interval(4) - s / interval(2);
+interval infty_step(iVector y, interval t, interval beta) {
+    // energy minimized at y^3 - beta^2y = 0, or y = beta;
+    interval MIN_ENERGY = -my_pow(beta, 4) / interval(2);
 
-    interval min_d = min_mag(y[0]) + interval(sup(sqrt(s)));
-    interval E = interval(sup(energy_infty(y, s)));
-    interval maxv = sqrt(2 * (E - MIN_ENERGY));
-    interval step = min_d / maxv;
-    return interval(inf(step));
+    interval min_d = min_mag(y[0]) + interval(sup(beta));
+    interval E = interval(sup(energy_infty(y, beta)));
+    interval maxv = sqrt(interval(2) * (E - MIN_ENERGY));
+    interval step_guess = min_d / maxv;
+
+    // always take steps of at least length INFTY_STEP (but possibly larger)
+    double step_actual = max(inf(step_guess), INFTY_STEP);
+    return interval(step_actual);
 }
 
 /*
@@ -453,6 +456,10 @@ int crossing_number_smallb(interval b, int maxc, AD *ad, VNODE *Solver) {
         Solver->integrate(t, y, new_t);
         
         if(!Solver->successful()) {
+            cout << "Crossing number smallb failed: " << t << ", " << new_t << endl;
+            for (int i = 0; i < 4; i++) {
+                cout << y[i] << endl;
+            }
             return -1;
         }
 
@@ -475,6 +482,10 @@ interval find_nth_excited_state_binsearch(int N, double tol, AD *ad, VNODE *Solv
     double lower_bound, double upper_bound) {
      while (upper_bound - lower_bound > tol) {
         double mid = (upper_bound + lower_bound) / 2;
+        // cout << setprecision(8) << tol << ", " << 
+        //     N << "; " << 
+        //     lower_bound << ", " << upper_bound << "; " << 
+        //     mid << endl;
         int nc_mid = crossing_number_smallb(mid, N+1, ad, Solver);
         // cout << "MID: " << mid << ", " << nc_mid << endl;
         if (nc_mid == -1) {
@@ -517,26 +528,25 @@ double determine_min_height_for_crossings(int n, AD *ad, VNODE *Solver) {
 
 
 // determined number of crossings using infinitary equation
-// TODO: change step size to be determined dynamically based on energy
 // TODO: graph and compare to finitary equations
 // guarantees that it will cross *at least* as many times as the return value 
 // could potentially cross more times
-int crossing_number_infty(interval s, int max, AD *ad, VNODE *Solver) {
-    ad->eval(&s);
+int crossing_number_infty(interval beta, int max, AD *ad, VNODE *Solver) {
+    ad->eval(&beta);
     Solver->setFirstEntry();
 
-    NLKG_init_l2 init_val = NLKG_infty_init_approx(s, INIT_WIDTH);
+    NLKG_init_l2 init_val = NLKG_infty_init_approx(beta, INIT_WIDTH);
 
     interval t = init_val.t0;
     iVector y = init_val.y;
 
     int num_crossings = 0;
     bool pos = true;
-    while (num_crossings < max && sup(energy_infty(y, s)) > 0) {
+    while (num_crossings < max && sup(energy_infty(y, beta)) > 0) {
         // cout << y[0] << ", " << t << endl;
         if (width(y[0]) > MIN_WIDTH_ALGO_RUN) return false;
 
-        interval new_t = t + time_max_one_cross_infty(y, t, s);
+        interval new_t = t + infty_step(y, t, beta);
         Solver->integrate(t, y, new_t);
         
         if(!Solver->successful()) {
@@ -561,23 +571,31 @@ int crossing_number_infty(interval s, int max, AD *ad, VNODE *Solver) {
 
 // verify that within the interval s, there are at least `n' crossings 
 // applies to equation at infinity
-bool prove_crosses_many_infty(int n, interval s, AD *ad, VNODE *Solver) {
-    if (width(s) < EP * 4) { 
+bool prove_crosses_many_infty(int n, interval beta, AD *ad, VNODE *Solver) {
+    if (width(beta) < EP * 4) { 
         cout << "Interval too small, cannot verify crosses many times at infinity: " << 
-            s << endl;
+            beta << endl;
         return false; // if interval is too small we can't bisect further
     }
-    int nc = crossing_number_infty(s, n, ad, Solver);
+    int nc = crossing_number_infty(beta, n, ad, Solver);
     if (nc == n) {
-        cout << "Proved crosses at least " << n << " times: " << s << endl;
+        cout << "Proved crosses at least " << n << " times: " << beta << endl;
         return true;
     }
     else {
-        bool lower_good = 
-            prove_crosses_many_infty(n, lower_half(s), ad, Solver);
+        // bisect interval into two parts
+        interval lh;
+        interval uh;
+        bool succesfull_split = split_halfs(beta, lh, uh);
+
+        if (!succesfull_split) {
+            cout << "Could not verify that upper and lower halves cover interval" << endl;
+            return false;
+        }
+
+        bool lower_good = prove_crosses_many_infty(n, lh, ad, Solver);
         if (!lower_good) return false;
-        bool upper_good = 
-            prove_crosses_many_infty(n, upper_half(s), ad, Solver);
+        bool upper_good = prove_crosses_many_infty(n, uh, ad, Solver);
         if (!upper_good) return false;
 
         return true;
@@ -628,18 +646,28 @@ bool prove_eventually_falls_bisection(interval ran_fall, AD *ad, VNODE *Solver) 
     }
 
     // bisect interval into two parts
-    bool lower_good = prove_eventually_falls_bisection(lower_half(ran_fall), 
-            ad, Solver);
-    bool upper_good = prove_eventually_falls_bisection(upper_half(ran_fall), 
-            ad, Solver);  
+    interval lh;
+    interval uh;
+    bool succesfull_split = split_halfs(ran_fall, lh, uh);
 
-    return lower_good && upper_good;
+    if (!succesfull_split) {
+        cout << "Could not verify that upper and lower halves cover interval" << endl;
+        return false;
+    }
+
+    bool lower_good = prove_eventually_falls_bisection(lh, ad, Solver);
+    if (!lower_good) return false;
+
+    bool upper_good = prove_eventually_falls_bisection(uh, ad, Solver);  
+    if (!upper_good) return false;
+
+    return true;
 }
 
 // verify that within the interval b, there is at most one bound state
 // TODO: verify all floating point calculations are rigorous
 // TODO: decide ending time dynamically? maybe not...
-bool bound_state_good(interval b, AD *ad, VNODE *Solver, bool verbose) {
+bool bound_state_good(int n, interval b, AD *ad, VNODE *Solver, bool verbose) {
     
     NLKG_init_l4 init_val = NLKG_init_approx_with_delta(b, INIT_WIDTH);
 
@@ -651,8 +679,15 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver, bool verbose) {
     Solver->setHmin(0);
     Solver->setFirstEntry();
 
+    int num_crossings = 0;
+    bool pos = true;
+
     while (true) {
-        interval new_t = t + time_max_one_cross(y, t);
+        // step at most time_max_one_cross, maybe less
+        interval step = time_max_one_cross(y, t);
+        if (BOUND_STATE_STEP < inf(step)) step = interval(BOUND_STATE_STEP);
+
+        interval new_t = t + step;
         Solver->integrate(t,y,new_t);
         interval E = energy(y);
 
@@ -661,20 +696,40 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver, bool verbose) {
             return false;
         }
 
+        // keep track of number of crossings
+        int sign = get_sign(y[0]);
+        if (sign == POS) {
+            if (pos == false) num_crossings += 1;
+            pos = true;
+        }
+        else if (sign == NEG) {
+            if (pos == true) num_crossings += 1;
+            pos = false;
+        }
+
+        // must have exactly n crossings at time of verification
+        if (num_crossings < n) continue; 
+        if (num_crossings > n) return false; // too many crossings
+
+
         // if E < 0, return false
         if (interval_le(E, interval(0))) {
             return false;
         }
 
         // all variables must have definite signs
+        bool correct_signs = true;
         for(int i = 0; i < 4; i++) {
-            if(get_sign(y[i]) == UNC) continue;
+            if(get_sign(y[i]) == UNC) correct_signs = false;
         }
+        if (!correct_signs) continue;
 
         // this is valid because we already checked they have definite signs
-        if(midpoint(y[2]) * midpoint(y[1]) < 0) continue;
-        if(midpoint(y[3]) * midpoint(y[1]) < 0) continue;
-
+        // check that y[1], y[2], y[3] have the opposite sign from y[0]
+        for (int i = 1; i < 4; i++) {
+            if (get_sign(y[i]) == get_sign(y[0])) correct_signs = false;
+        }
+        if (!correct_signs) continue;
 
         // check |y(t)| < 1/2
         if(!interval_le(mag(y[0]), interval(1)/interval(2))) continue;
@@ -692,10 +747,11 @@ bool bound_state_good(interval b, AD *ad, VNODE *Solver, bool verbose) {
             cout << "Succesfully proved at most one bound state in range: " << b << endl;
             cout << "Ending time = " << new_t << ", ending y = " << endl;
             for(int i = 0; i < 4; i++) {
-                cout << "y" << i << " : " << y[i] << endl;
+                cout << inf(y[i]) << ", " << sup(y[i]) << endl;
             }
         }
 
+        // if we reach this point, we verified uniqueness of bound state n
         return true;
     }
 }
@@ -753,7 +809,7 @@ vector<interval_handler> make_n_first_excited_plan(int n) {
             // cout << lower << ", " << upper << ", " << bound_state_tol << endl;
             nth_excited_approx = find_nth_excited_state_binsearch(i, 
                 bound_state_tol, ad, Solver, lower, upper);
-            bool res = bound_state_good(nth_excited_approx, ad_wd, Solver_wd, false);
+            bool res = bound_state_good(i, nth_excited_approx, ad_wd, Solver_wd, false);
             if (res) break; // small enough to verify bound state good
             lower = inf(nth_excited_approx);
             upper = sup(nth_excited_approx);
@@ -783,7 +839,7 @@ vector<interval_handler> make_n_first_excited_plan(int n) {
     // construct interval of s to check
     // need to check b_checked_upto --> infty
     // under inversion, this becomes 0 --> 1/b_checked_upto
-    interval s_int = interval(0, sup(1/pow(interval(b_checked_upto), 2)) + 5 * EP);
+    interval s_int = interval(0, sup(1/interval(b_checked_upto)) + 5 * EP);
     pf_plan.push_back(interval_handler(CROSSES_MANY_INFTY, s_int));
     cout << "created interval to check: INFTY CROSSES MANY, " << s_int << endl;
 
@@ -803,33 +859,14 @@ bool verify_drop(interval I) {
 bool verify_boundstate_good(interval I, int n) {
     cout << "Will verify #" << n << " bound state good: " << I << endl;
 
-    AD *ad = new FADBAD_AD(2,NLKG_no_delta, NLKG_no_delta);
+    // verify that the conditions of Lemmas 6, 7 hold, so at most 
+    // one nth bound state, and no (n+1)th bound state
+    AD *ad = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
     VNODE *Solver = new VNODE(ad);
-    interval lower_I = interval(inf(I)+EP);
-    interval upper_I = interval(sup(I)-EP);
-    if(!subseteq(lower_I, I) || !subseteq(upper_I, I)) {
-        cout << "Failed to make intervals to check for existence of bound state" << endl;
-        return false;
-    }
-    bool crosses_right_below = crossing_number_smallb(lower_I, n+2, ad, Solver) == n;
-    bool crosses_right_above = crossing_number_smallb(upper_I, n+2, ad, Solver) == n+1;
-
-    if (crosses_right_below && crosses_right_above) {
-        cout << "Crosses " << n << " times below #" << n << " bound state, " << 
-                "and " << n+1 << " times above; at least one #" << n << " bound state in range"<< endl;
-    }
-    else {
-        cout << "Could not verify #" << n << "bound state is in range: " << I << endl;
-        return false;
-    }
-
-    ad = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
-    Solver = new VNODE(ad);
-
-    bool at_most_one = bound_state_good(I, ad, Solver, true);
+    bool at_most_one = bound_state_good(n, I, ad, Solver, true);
 
  
-    return at_most_one && crosses_right_below && crosses_right_above;
+    return at_most_one;
 }
 
 // verify that in the interval s we cross at least n+1 times
@@ -866,7 +903,7 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
     if (!subseteq(sub_infty_interval, infty_interval)) {
         cout << "Failed in making sub infinity interval" << endl;
     }
-    interval outer_infty_interval = sqrt(1 / sub_infty_interval);
+    interval outer_infty_interval = 1 / sub_infty_interval;
     if (!does_intersect(plan[plan_len - 2].the_interval, outer_infty_interval)) {
         cout << "Intervals not contiguous: end to infinity" << endl;
         cout << plan[plan_len - 2].the_interval << endl;
@@ -880,7 +917,6 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
     // verify that intervals do what they say
     for(uint i = 0; i < plan.size(); i++) {
         bool success = false;
-
         if (plan[i].method == FALLS) {
             success = verify_drop(plan[i].the_interval);
         }
@@ -906,6 +942,22 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan) {
 
 
 int main() {
+    // double lower = 228.11972;
+    // double upper = 228.11988;
+    // interval I = interval(lower, upper);
+
+    // AD *ad = new FADBAD_AD(2, NLKG_no_delta, NLKG_no_delta);
+    // VNODE *Solver = new VNODE(ad);
+
+    // cout << crossing_number_smallb(interval(lower), 15, ad, Solver) << endl;
+    // cout << crossing_number_smallb(interval(upper), 15, ad, Solver) << endl;
+    
+    // ad = new FADBAD_AD(4, NLKG_with_delta, NLKG_with_delta);
+    // Solver = new VNODE(ad);
+
+    // bool res = bound_state_good(I, ad, Solver, true);
+    // cout << "BOUND STATE GOOD: " << res << endl;
+
     clock_t t_start = clock();
 
     int N = 10;
