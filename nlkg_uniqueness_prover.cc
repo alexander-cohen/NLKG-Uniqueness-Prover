@@ -40,8 +40,8 @@ const double TIME_START_INFTY_EQ = 1e-2;
 const double MIN_TIME_START = 1e-2;
 
 // maximum allowed uncertanties in running of finitary equation
-const double MIN_WIDTH_EVENTUALLY_FALLS = 0.5; 
-const double MIN_WIDTH_ALGO_RUN = 2.0; 
+const double MAX_WIDTH_EVENTUALLY_FALLS = 1.0; 
+const double MAX_WIDTH_ALGO_RUN = 0.5; 
 
 // time steps for equation at infinity not determined dynamically 
 // because we just need to lower bound the number of crossings
@@ -609,6 +609,8 @@ int crossing_number_smallb(interval b, int maxc, AD *ad, VNODE *Solver) {
     bool pos = true;
     while (sup(energy(y)) > 0 && 
         num_crossings < maxc) {
+        if (width(y[0]) > MAX_WIDTH_ALGO_RUN) return -1;
+
         interval step = time_max_one_cross(y, t);
         interval new_t = t + step;
 
@@ -726,7 +728,7 @@ int crossing_number_infty(interval beta, int max, AD *ad, VNODE *Solver) {
     int num_crossings = 0;
     bool pos = true;
     while (num_crossings < max && sup(energy_infty(y, beta)) > 0) {
-        if (width(y[0]) > MIN_WIDTH_ALGO_RUN) return false;
+        if (width(y[0]) > MAX_WIDTH_ALGO_RUN) return false;
 
         interval new_t = t + infty_step(y, t, beta);
         Solver->integrate(t, y, new_t);
@@ -803,7 +805,7 @@ Returns:
     - false if the above could not be verified
 */
 bool prove_eventually_falls(interval b, AD *ad, VNODE *Solver) {
-    if (width(b) > MIN_WIDTH_EVENTUALLY_FALLS) {
+    if (width(b) > MAX_WIDTH_EVENTUALLY_FALLS) {
         return false;
     }
 
@@ -814,7 +816,7 @@ bool prove_eventually_falls(interval b, AD *ad, VNODE *Solver) {
     interval t = init_val.t0;
 
     while (sup(energy(y)) > 0) {
-        if (width(y[0]) > MIN_WIDTH_ALGO_RUN) return false;
+        if (width(y[0]) > MAX_WIDTH_ALGO_RUN) return false;
 
         interval new_t = t + max(sup(time_max_one_cross(y, t)), 1.0);
         Solver->integrate(t, y, new_t);
@@ -898,6 +900,7 @@ bool bound_state_good(int n, interval b, AD *ad, VNODE *Solver, bool verbose) {
     bool pos = true;
 
     while (true) {
+        if (width(y) > MAX_WIDTH_ALGO_RUN) return false;
         // step at most time_max_one_cross, maybe less
         interval step = time_max_one_cross(y, t);
         if (MAX_BOUND_STATE_STEP < inf(step)) {
@@ -1336,12 +1339,6 @@ int make_N3_output_for_graphs() {
 
 
 int main(int argc, char *argv[]) {
-    AD *ad = new FADBAD_AD(4, NLKG_no_delta, NLKG_no_delta);
-    VNODE *Solver = new VNODE(ad);
-    for (int i = 0; i <= 20; i++) {
-        interval loc = find_nth_excited_state(i, 1e-2, ad, Solver);
-        cout << "(" << inf(loc) << "," << sup(loc) << ")" << endl;
-    }
-    // return run_uniqueness_prover(argc, argv);
+    return run_uniqueness_prover(argc, argv);
     // return make_N3_output_for_graphs();
 }
