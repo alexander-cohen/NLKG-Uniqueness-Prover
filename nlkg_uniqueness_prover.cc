@@ -160,6 +160,7 @@ bool execute_first_n_excited_plan(int n, vector<interval_handler> plan);
 void sample_solve(interval b, interval tend);
 void NLKG_init_test();
 void make_sol_data(interval b, double T, double step);
+int make_output_dat_comp_finite_inf();
 
 // Main functions
 int run_uniqueness_prover(int argc, char *argv[]);
@@ -747,7 +748,7 @@ int crossing_number_infty(interval beta, int max, AD *ad, VNODE *Solver) {
             pos = false;
         }
     }
-
+    cout << "finished at time: " << t << endl;
     return num_crossings;
 }
 
@@ -900,7 +901,7 @@ bool bound_state_good(int n, interval b, AD *ad, VNODE *Solver, bool verbose) {
     bool pos = true;
 
     while (true) {
-        if (width(y) > MAX_WIDTH_ALGO_RUN) return false;
+        if (width(y[0]) > MAX_WIDTH_ALGO_RUN) return false;
         // step at most time_max_one_cross, maybe less
         interval step = time_max_one_cross(y, t);
         if (MAX_BOUND_STATE_STEP < inf(step)) {
@@ -1338,7 +1339,68 @@ int make_N3_output_for_graphs() {
 }
 
 
+/**
+Create some data to compare finitary equation to infinity equation
+Should have y_b(t) = bw(bt) or beta y_b(beta t) = w(t)
+*/
+int make_output_dat_comp_finite_inf() {
+    interval b(25.0, 25.00001);
+    interval beta = 1/b;
+
+
+    interval step(0.001);
+    int num_steps = 10000;
+
+    // integrator for finitary eq
+    AD *ad_fin = new FADBAD_AD(2, NLKG_no_delta, NLKG_no_delta);
+    VNODE *Solver_fin = new VNODE(ad_fin);
+
+    // integrator for infinitary eq
+    AD *ad_inf = new FADBAD_AD(2, NLKG_inf, NLKG_inf, &beta);
+    VNODE *Solver_inf = new VNODE(ad_inf);
+
+    NLKG_init_l2 init_val_fin = NLKG_init_approx_no_delta(b, INIT_WIDTH);
+    iVector y_fin = init_val_fin.y;
+    interval t_fin = init_val_fin.t0;
+
+    NLKG_init_l2 init_val_inf = NLKG_infty_init_approx(beta, INIT_WIDTH);
+    iVector y_inf = init_val_inf.y;
+    interval t_inf = init_val_inf.t0;
+
+    // cout << t_inf << ", " << y_inf[0] << endl;
+
+    // integrate equations
+    cout << "Integrating equations" << endl;
+    cout << "step,time,inf(y[0]),sup(y[0]),b*time,inf(b*w(bt)),sup(b*w(bt))" << 
+            endl;
+    for (int i = 0; i < num_steps; i++) {
+        // cout << "Energy: " << energy(y_fin) << endl;
+        interval new_t_fin = t_fin + step;
+        interval new_t_inf = b * new_t_fin;
+        
+        Solver_fin->integrate(t_fin, y_fin, new_t_fin);
+        Solver_inf->integrate(t_inf, y_inf, new_t_inf);
+
+        if(!Solver_fin->successful() || !Solver_inf->successful()) {
+            cout << "Failed to integrate, stopping.";
+            return 1;
+        }
+
+        if(!does_intersect(y_fin[0], b * y_inf[0])) {
+            cout << "DOES NOT INTERSECT" << endl;
+            return 1;
+        }
+
+        cout << i << "," << 
+                midpoint(t_fin) << "," << inf(y_fin[0]) << "," << 
+                                          sup(y_fin[0]) << "," << 
+                midpoint(t_inf) << "," << inf(b * y_inf[0]) << "," << 
+                                          sup(b * y_inf[0]) << endl;
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     return run_uniqueness_prover(argc, argv);
-    // return make_N3_output_for_graphs();
 }
