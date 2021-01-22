@@ -1,3 +1,12 @@
+/**
+This project consists of code accompanying the paper 
+https://arxiv.org/abs/2101.08356. This is part of joint work done by 
+Alex Cohen, Zhenhao Li, and Wilhelm Schlag during the summer and fall of 2020.
+
+The purpose of this code is to prove rigorously that the first several excited 
+states of the ODE y'' + (2/t)y' + y^3 - y = 0 are unique. 
+*/
+
 #include <ostream>
 #include <sstream>
 #include <fstream>
@@ -16,12 +25,6 @@ Approximate bound states:
     b2 = 29.1312123369
     b3 = 49.3607112672
     b4 = 74.7723053303
-*/
-
-
-/*
-TODO:
-- make graphs comparing boundary ODE at infinity to finitary ODE
 */
 
 // SEC: CONSTANTS //
