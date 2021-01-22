@@ -1,4 +1,4 @@
-#{1:Uniqueness of excited states to -\Delta u + u - u^3 = 0 in three dimensions}
+#${1:Uniqueness of excited states to -\Delta u + u - u^3 = 0 in three dimensions}
 This project consists of code accompanying the paper https://arxiv.org/abs/2101.08356. This is part of joint work done by Alex Cohen, Zhenhao Li, and Wilhelm Schlag during the summer and fall of 2020. 
 
 ## Installation
